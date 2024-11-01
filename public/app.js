@@ -56,13 +56,16 @@ class ChatApp {
         if (!message || !this.currentChatId) return;
 
         try {
-            await fetch(`http://localhost:4000/chat/${this.currentChatId}`, {
+            const response = await fetch(`http://localhost:4000/chat/${this.currentChatId}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({ message })
             });
+            const updatedChat = await response.json();
+            this.displayMessages(updatedChat.messages);
             messageInput.value = '';
         } catch (error) {
             console.error('Error sending message:', error);
@@ -77,6 +80,7 @@ class ChatApp {
             const chatElement = document.createElement('div');
             chatElement.className = 'chat-item';
             chatElement.textContent = chat.name;
+            chatElement.dataset.chatId = chat.id;
             chatElement.onclick = () => this.selectChat(chat.id);
             if (chat.id === this.currentChatId) {
                 chatElement.classList.add('active');
