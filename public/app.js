@@ -20,10 +20,20 @@ class ChatApp {
                     if (message.role === 'assistant') {
                         this.removeLoadingMessage();
                         this.appendMessage(message);
+                        // Scroll to bottom after new message
+                        const chatMessages = document.getElementById('chatMessages');
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
                 }
-                this.loadChats();
             }
+        };
+
+        this.ws.onclose = () => {
+            console.log('WebSocket connection closed. Attempting to reconnect...');
+            setTimeout(() => {
+                this.ws = new WebSocket('ws://localhost:4000/ws');
+                this.setupWebSocket();
+            }, 1000);
         };
     }
 
