@@ -148,10 +148,12 @@ class ChatApp {
     }
 
     appendMessage(message) {
+        console.log('Appending message:', message);
         const chatMessages = document.getElementById('chatMessages');
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
-        messageElement.textContent = message;
+        // Handle both string messages and message objects
+        messageElement.textContent = typeof message === 'object' ? message.content || JSON.stringify(message) : message;
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
