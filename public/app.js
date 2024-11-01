@@ -95,6 +95,7 @@ class ChatApp {
     }
 
     displayChats(chats) {
+        console.log('Displaying chats:', chats);
         const chatList = document.getElementById('chatList');
         chatList.innerHTML = '';
         
@@ -103,6 +104,7 @@ class ChatApp {
             chatElement.className = 'chat-item';
             chatElement.textContent = chat.name;
             chatElement.dataset.chatId = chat.id;
+            console.log('Creating chat element with ID:', chat.id);
             chatElement.onclick = () => this.selectChat(chat.id);
             if (chat.id === this.currentChatId) {
                 chatElement.classList.add('active');
@@ -113,8 +115,11 @@ class ChatApp {
 
     async selectChat(chatId) {
         console.log('Selecting chat:', chatId);
+        console.log('Previous currentChatId:', this.currentChatId);
         this.currentChatId = chatId;
+        console.log('Updated currentChatId:', this.currentChatId);
         try {
+            console.log('Fetching chat details for:', chatId);
             const response = await fetch(`http://localhost:4000/chat/${chatId}`);
             const chat = await response.json();
             this.displayMessages(chat.messages);
@@ -140,9 +145,13 @@ class ChatApp {
     }
 
     updateActiveChatStyle() {
+        console.log('Updating active chat style. Current chat ID:', this.currentChatId);
         document.querySelectorAll('.chat-item').forEach(item => {
+            const itemId = item.dataset.chatId;
+            console.log('Checking chat item:', itemId);
             item.classList.remove('active');
-            if (item.dataset.chatId === this.currentChatId) {
+            if (itemId === this.currentChatId) {
+                console.log('Setting active chat:', itemId);
                 item.classList.add('active');
             }
         });
