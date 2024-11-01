@@ -69,14 +69,30 @@ class ChatApp {
         if (!message || !this.currentChatId) return;
 
         try {
+            // Display user message immediately
+            this.appendMessage({
+                role: 'user',
+                content: message
+            });
+            
+            // Show loading state
+            this.appendLoadingMessage();
+            
+            // Send to chat-state service
             await fetch(`http://localhost:4000/chat/${this.currentChatId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ 
+                    message,
+                    role: 'user'
+                })
             });
+            
             messageInput.value = '';
+            this.removeLoadingMessage();
         } catch (error) {
             console.error('Failed to send message:', error);
+            this.removeLoadingMessage();
         }
     }
 
@@ -118,10 +134,34 @@ class ChatApp {
     appendMessage(message) {
         const chatMessages = document.getElementById('chatMessages');
         const messageElement = document.createElement('div');
-        messageElement.className = 'message';
-        messageElement.textContent = typeof message === 'object' ? message.content || JSON.stringify(message) : message;
+        
+        // Determine message type and format
+        const isObject = typeof message === 'object';
+        const role = isObject ? message.role || 'user' : 'user';
+        const content = isObject ? message.content || JSON.stringify(message) : message;
+        
+        messageElement.className = `message ${role}-message`;
+        messageElement.textContent = content;
+        
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    appendLoadingMessage() {
+        const chatMessages = document.getElementById('chatMessages');
+        const loadingElement = document.createElement('div');
+        loadingElement.className = 'message loading-message';
+        loadingElement.textContent = 'AI is thinking...';
+        loadingElement.id = 'loadingMessage';
+        chatMessages.appendChild(loadingElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    removeLoadingMessage() {
+        const loadingMessage = document.getElementById('loadingMessage');
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
     }
 
     updateActiveChatStyle() {
