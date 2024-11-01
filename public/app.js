@@ -43,11 +43,18 @@ class ChatApp {
 
     async loadChats() {
         try {
+            console.log('Fetching chats from server...');
             const response = await fetch('http://localhost:4000/chats');
+            console.log('Response status:', response.status);
             const data = await response.json();
+            console.log('Raw response data:', data);
+            if (!data.chats) {
+                console.warn('No chats property in response:', data);
+            }
             this.displayChats(data.chats || []);
         } catch (error) {
             console.error('Error loading chats:', error);
+            console.error('Error details:', error.message);
         }
     }
 
@@ -56,13 +63,18 @@ class ChatApp {
         if (!chatName) return;
 
         try {
+            console.log('Creating new chat with name:', chatName);
             const response = await fetch(`http://localhost:4000/new-chat/${encodeURIComponent(chatName)}`, {
                 method: 'POST'
             });
+            console.log('Create chat response status:', response.status);
             const newChat = await response.json();
-            this.loadChats(); // Refresh chat list
+            console.log('New chat created:', newChat);
+            await this.loadChats(); // Refresh chat list
+            console.log('Chats reloaded after creation');
         } catch (error) {
             console.error('Error creating chat:', error);
+            console.error('Error details:', error.message);
         }
     }
 
