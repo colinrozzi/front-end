@@ -1,5 +1,6 @@
 class ChatApp {
     constructor() {
+        console.log('Initializing ChatApp...');
         this.currentChatId = null;
         this.ws = new WebSocket('ws://localhost:4000/ws');
         this.initializeWebSocket();
@@ -8,9 +9,25 @@ class ChatApp {
     }
 
     initializeWebSocket() {
+        console.log('Setting up WebSocket...');
+        
+        this.ws.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        this.ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
         this.ws.onmessage = (event) => {
+            console.log('WebSocket message received:', event.data);
             const data = JSON.parse(event.data);
             if (data.type === 'chat_message' && data.chatId === this.currentChatId) {
+                console.log('Processing chat message for chat:', this.currentChatId);
                 this.appendMessage(data.message);
             }
         };
@@ -53,7 +70,12 @@ class ChatApp {
         const messageInput = document.getElementById('messageInput');
         const message = messageInput.value.trim();
         
-        if (!message || !this.currentChatId) return;
+        if (!message || !this.currentChatId) {
+            console.log('Cannot send message: ', !message ? 'empty message' : 'no chat selected');
+            return;
+        }
+        
+        console.log('Sending message to chat:', this.currentChatId);
 
         try {
             const response = await fetch(`http://localhost:4000/chat/${this.currentChatId}`, {
@@ -90,6 +112,7 @@ class ChatApp {
     }
 
     async selectChat(chatId) {
+        console.log('Selecting chat:', chatId);
         this.currentChatId = chatId;
         try {
             const response = await fetch(`http://localhost:4000/chat/${chatId}`);
