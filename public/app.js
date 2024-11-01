@@ -12,28 +12,48 @@ class ChatApp {
     }
 
     setupWebSocket() {
+        console.log('Setting up WebSocket connection...');
+        
+        this.ws.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+
         this.ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'update' && data.event?.data?.type === 'chat_message') {
-                if (data.event.data.chatId === this.currentChatId) {
-                    const message = data.event.data.message;
-                    if (message.role === 'assistant') {
-                        this.removeLoadingMessage();
-                        this.appendMessage(message);
-                        // Scroll to bottom after new message
-                        const chatMessages = document.getElementById('chatMessages');
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log('WebSocket message received:', event.data);
+            try {
+                const data = JSON.parse(event.data);
+                console.log('Parsed WebSocket data:', data);
+                
+                if (data.type === 'update' && data.event?.data?.type === 'chat_message') {
+                    console.log('Chat message update received for chat:', data.event.data.chatId);
+                    if (data.event.data.chatId === this.currentChatId) {
+                        const message = data.event.data.message;
+                        console.log('Processing message:', message);
+                        if (message.role === 'assistant') {
+                            this.removeLoadingMessage();
+                            this.appendMessage(message);
+                            // Scroll to bottom after new message
+                            const chatMessages = document.getElementById('chatMessages');
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
                     }
                 }
+            } catch (error) {
+                console.error('Error processing WebSocket message:', error);
             }
         };
 
         this.ws.onclose = () => {
             console.log('WebSocket connection closed. Attempting to reconnect...');
             setTimeout(() => {
+                console.log('Attempting WebSocket reconnection...');
                 this.ws = new WebSocket('ws://localhost:4000/ws');
                 this.setupWebSocket();
             }, 1000);
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
         };
     }
 
