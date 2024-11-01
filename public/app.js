@@ -27,7 +27,7 @@ class ChatApp {
                 if (data.type === 'update' && data.event?.data?.type === 'chat_message') {
                     console.log('Chat message update received for chat:', data.event.data.chatId);
                     if (data.event.data.chatId === this.currentChatId) {
-                        const message = data.event.data.message;
+                        const message = data.event.data.message.message;  // Extract nested message
                         console.log('Processing message:', message);
                         if (message.role === 'assistant') {
                             this.removeLoadingMessage();
