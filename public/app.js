@@ -109,11 +109,17 @@ class ChatApp {
                 },
                 body: JSON.stringify({ message })
             });
-            const updatedChat = await response.json();
-            this.displayMessages(updatedChat.messages);
+            // Only try to parse JSON if the response has content
+            if (response.status === 200 && response.headers.get("content-length") > 0) {
+                const updatedChat = await response.json();
+                this.displayMessages(updatedChat.messages);
+            }
             messageInput.value = '';
         } catch (error) {
-            console.error('Error sending message:', error);
+            // Only log actual errors, not JSON parsing issues
+            if (!(error instanceof SyntaxError)) {
+                console.error('Error sending message:', error);
+            }
         }
     }
 
