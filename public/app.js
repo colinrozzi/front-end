@@ -28,7 +28,7 @@ class ChatApp {
         try {
             const response = await fetch('http://localhost:4000/chats');
             const data = await response.json();
-            this.displayChats(data.chats);
+            this.displayChats(data.chats || []);
         } catch (error) {
             console.error('Error loading chats:', error);
         }
