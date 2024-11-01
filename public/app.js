@@ -26,9 +26,13 @@ class ChatApp {
         this.ws.onmessage = (event) => {
             console.log('WebSocket message received:', event.data);
             const data = JSON.parse(event.data);
-            if (data.type === 'chat_message' && data.chatId === this.currentChatId) {
-                console.log('Processing chat message for chat:', this.currentChatId);
-                this.appendMessage(data.message);
+            if (data.type === 'chat_message') {
+                console.log('Processing chat message for chat:', data.chatId);
+                if (data.chatId === this.currentChatId) {
+                    this.appendMessage(data.message);
+                }
+                // Refresh the chat list to show updated message counts
+                this.loadChats();
             }
         };
     }
@@ -52,6 +56,11 @@ class ChatApp {
             const chats = Array.isArray(data) ? data : (data.chats || []);
             console.log('Processed chats:', chats);
             this.displayChats(chats);
+            
+            // If we have a currentChatId but no messages displayed, reload the current chat
+            if (this.currentChatId && document.getElementById('chatMessages').children.length === 0) {
+                await this.selectChat(this.currentChatId);
+            }
         } catch (error) {
             console.error('Error loading chats:', error);
             console.error('Error details:', error.message);
@@ -72,6 +81,8 @@ class ChatApp {
             console.log('New chat created:', newChat);
             await this.loadChats(); // Refresh chat list
             console.log('Chats reloaded after creation');
+            // Automatically select the new chat
+            await this.selectChat(newChat.id);
         } catch (error) {
             console.error('Error creating chat:', error);
             console.error('Error details:', error.message);
