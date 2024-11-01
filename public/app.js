@@ -26,10 +26,10 @@ class ChatApp {
         this.ws.onmessage = (event) => {
             console.log('WebSocket message received:', event.data);
             const data = JSON.parse(event.data);
-            if (data.type === 'chat_message') {
-                console.log('Processing chat message for chat:', data.chatId);
-                if (data.chatId === this.currentChatId) {
-                    this.appendMessage(data.message);
+            if (data.type === 'update' && data.event.data.type === 'chat_message') {
+                console.log('Processing chat message for chat:', data.event.data.chatId);
+                if (data.event.data.chatId === this.currentChatId) {
+                    this.appendMessage(data.event.data.message.message);
                 }
                 // Refresh the chat list to show updated message counts
                 this.loadChats();
