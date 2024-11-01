@@ -48,10 +48,10 @@ class ChatApp {
             console.log('Response status:', response.status);
             const data = await response.json();
             console.log('Raw response data:', data);
-            if (!data.chats) {
-                console.warn('No chats property in response:', data);
-            }
-            this.displayChats(data.chats || []);
+            // Handle both array and object responses
+            const chats = Array.isArray(data) ? data : (data.chats || []);
+            console.log('Processed chats:', chats);
+            this.displayChats(chats);
         } catch (error) {
             console.error('Error loading chats:', error);
             console.error('Error details:', error.message);
