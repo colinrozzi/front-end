@@ -1,7 +1,7 @@
 class ChatApp {
     constructor() {
         this.currentChatId = null;
-        this.ws = new WebSocket('ws://localhost:4000');
+        this.ws = new WebSocket('ws://localhost:4000/ws');
         this.initializeWebSocket();
         this.initializeEventListeners();
         this.loadChats();
