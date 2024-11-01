@@ -141,10 +141,27 @@ class ChatApp {
         const chatMessages = document.getElementById('chatMessages');
         const messageElement = document.createElement('div');
         
-        // Determine message type and format
-        const isObject = typeof message === 'object';
-        const role = isObject ? message.role || 'user' : 'user';
-        const content = isObject ? message.content || JSON.stringify(message) : message;
+        // Handle different message formats
+        let role = 'user';
+        let content = '';
+        
+        if (typeof message === 'object') {
+            if (message.message && message.message.role) {
+                // Handle nested message format
+                role = message.message.role;
+                content = message.message.content;
+            } else if (message.role) {
+                // Handle direct message format
+                role = message.role;
+                content = message.content;
+            } else {
+                // Fallback for unknown object format
+                content = JSON.stringify(message);
+            }
+        } else {
+            // Handle plain string messages
+            content = message;
+        }
         
         messageElement.className = `message ${role}-message`;
         messageElement.textContent = content;
