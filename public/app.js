@@ -16,7 +16,11 @@ class ChatApp {
             const data = JSON.parse(event.data);
             if (data.type === 'update' && data.event?.data?.type === 'chat_message') {
                 if (data.event.data.chatId === this.currentChatId) {
-                    this.appendMessage(data.event.data.message.message);
+                    const message = data.event.data.message;
+                    if (message.role === 'assistant') {
+                        this.removeLoadingMessage();
+                        this.appendMessage(message);
+                    }
                 }
                 this.loadChats();
             }
@@ -83,8 +87,10 @@ class ChatApp {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    message,
-                    role: 'user'
+                    message: {
+                        role: 'user',
+                        content: message
+                    }
                 })
             });
             
