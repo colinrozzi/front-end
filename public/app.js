@@ -92,11 +92,31 @@ class ChatApp {
     async createNewChat() {
         const chatName = prompt('Enter chat name:');
         if (!chatName) return;
+        
+        try {
+            const response = await fetch('http://localhost:4000/chats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: chatName })
+            });
+            
+            if (!response.ok) throw new Error('Failed to create chat');
+            
+            const chat = await response.json();
+            await this.loadChats();
+            await this.selectChat(chat.id);
+        } catch (error) {
+            console.error('Error creating new chat:', error);
+            alert('Failed to create new chat');
+        }
+    }
 
-  updateChatName(name) {
-    const chatNameElement = document.getElementById("currentChatName");
-    chatNameElement.textContent = name || "Select a chat";
-  }
+    updateChatName(name) {
+        const chatNameElement = document.getElementById("currentChatName");
+        chatNameElement.textContent = name || "Select a chat";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => new ChatApp());
