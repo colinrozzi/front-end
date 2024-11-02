@@ -44,8 +44,8 @@ body {
 }
 
 .toggle-btn {
-    position: fixed;
-    left: 10px;
+    position: absolute;
+    left: 250px; /* Aligns with sidebar width */
     top: 10px;
     z-index: 101;
     width: 40px;
@@ -54,6 +54,11 @@ body {
     font-size: 24px;
     background: var(--bg-color);
     border: 1px solid var(--border-color);
+    transition: left 0.3s ease;
+}
+
+.sidebar.hidden ~ .toggle-btn {
+    left: 0;
 }
 
 .main-content {
@@ -61,14 +66,14 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    padding-top: 60px; /* Make room for the toggle button */
     position: relative;
-    margin-left: 60px;
     transition: margin-left 0.3s ease;
     width: 0; /* Allow content to shrink */
 }
 
 .sidebar.hidden + .main-content {
-    margin-left: 20px;
+    margin-left: 60px; /* Space for the toggle button */
 }
 
 .main-content::before {
