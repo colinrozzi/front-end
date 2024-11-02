@@ -163,15 +163,29 @@ class ChatApp {
     }
 
     async selectChat(chatId) {
+        if (!chatId) {
+            console.log('No chat selected');
+            return;
+        }
+        
         this.currentChatId = chatId;
         try {
             const response = await fetch(`http://localhost:4000/chat/${chatId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const chat = await response.json();
-            this.displayMessages(chat.messages);
+            if (chat && Array.isArray(chat.messages)) {
+                this.displayMessages(chat.messages);
+            } else {
+                this.displayMessages([]);
+            }
             this.updateActiveChatStyle();
-            this.updateChatName(chat.name);
+            this.updateChatName(chat?.name || 'Unnamed Chat');
         } catch (error) {
             console.error('Failed to load chat:', error);
+            this.displayMessages([]);
+            this.updateChatName('Error loading chat');
         }
     }
 
@@ -179,18 +193,32 @@ class ChatApp {
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '';
         
+        if (!messages || messages.length === 0) {
+            const emptyStateElement = document.createElement('div');
+            emptyStateElement.className = 'empty-state-message';
+            emptyStateElement.textContent = 'No messages yet. Start a conversation!';
+            chatMessages.appendChild(emptyStateElement);
+            return;
+        }
+        
         // Create a map of messages by hash for easy lookup
         const messageMap = new Map();
-        messages.forEach(msg => messageMap.set(msg.hash, msg));
+        messages.forEach(msg => {
+            if (msg && msg.hash) {
+                messageMap.set(msg.hash, msg);
+            }
+        });
         
         // Find root messages (those without parents or with unknown parents)
         const rootMessages = messages.filter(msg => 
-            !msg.parentHash || !messageMap.has(msg.parentHash)
+            msg && (!msg.parentHash || !messageMap.has(msg.parentHash))
         );
         
         // Recursively display messages starting from roots
         rootMessages.forEach(msg => {
-            this.displayMessageThread(msg, messages, messageMap, 0);
+            if (msg) {
+                this.displayMessageThread(msg, messages, messageMap, 0);
+            }
         });
     }
 
