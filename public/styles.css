@@ -26,6 +26,7 @@ body {
     display: flex;
     height: 100vh;
     background-color: var(--bg-color);
+    position: relative;
 }
 
 .sidebar {
@@ -33,19 +34,17 @@ body {
     background-color: rgba(255, 255, 255, 0.05);
     padding: 20px;
     border-right: 1px solid var(--border-color);
-    position: absolute;
     height: 100%;
-    left: 0;
-    transition: transform 0.3s ease;
-    z-index: 100;
+    flex-shrink: 0;
+    transition: margin-left 0.3s ease;
 }
 
 .sidebar.hidden {
-    transform: translateX(-250px);
+    margin-left: -250px;
 }
 
 .toggle-btn {
-    position: absolute;
+    position: fixed;
     left: 10px;
     top: 10px;
     z-index: 101;
@@ -63,6 +62,13 @@ body {
     flex-direction: column;
     padding: 20px;
     position: relative;
+    margin-left: 60px;
+    transition: margin-left 0.3s ease;
+    width: 0; /* Allow content to shrink */
+}
+
+.sidebar.hidden + .main-content {
+    margin-left: 20px;
 }
 
 .main-content::before {
