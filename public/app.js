@@ -159,6 +159,7 @@ class ChatApp {
             const chat = await response.json();
             this.displayMessages(chat.messages);
             this.updateActiveChatStyle();
+            this.updateChatName(chat.name);
         } catch (error) {
             console.error('Failed to load chat:', error);
         }
@@ -224,6 +225,11 @@ class ChatApp {
         document.querySelectorAll('.chat-item').forEach(item => {
             item.classList.toggle('active', item.dataset.chatId === this.currentChatId);
         });
+    }
+
+    updateChatName(name) {
+        const chatNameElement = document.getElementById('currentChatName');
+        chatNameElement.textContent = name || 'Select a chat';
     }
 }
 

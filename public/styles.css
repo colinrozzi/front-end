@@ -72,6 +72,16 @@ body {
     width: 0; /* Allow content to shrink */
 }
 
+.chat-name {
+    color: var(--highlight-color);
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
 .sidebar.hidden + .main-content {
     margin-left: 60px; /* Space for the toggle button */
 }
