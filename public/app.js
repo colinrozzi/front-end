@@ -5,7 +5,7 @@
 class ChatApp {
     constructor() {
         this.currentChatId = null;
-        this.ws = new WebSocket('ws://localhost:4000/ws');
+        this.ws = new WebSocket('ws://localhost:3000/ws');
         this.setupWebSocket();
         this.setupEventListeners();
         this.loadChats();
@@ -67,7 +67,7 @@ class ChatApp {
 
     async loadChats() {
         try {
-            const response = await fetch('http://localhost:4000/chats');
+            const response = await fetch('http://localhost:3000/chats');
             const data = await response.json();
             const chats = Array.isArray(data) ? data : (data.chats || []);
             this.displayChats(chats);
@@ -85,7 +85,7 @@ class ChatApp {
         if (!chatName) return;
 
         try {
-            const response = await fetch(`http://localhost:4000/new-chat/${encodeURIComponent(chatName)}`, {
+            const response = await fetch(`http://localhost:3000/new-chat/${encodeURIComponent(chatName)}`, {
                 method: 'POST'
             });
             const newChat = await response.json();
@@ -113,7 +113,7 @@ class ChatApp {
             this.appendLoadingMessage();
             
             // Send to chat-state service
-            await fetch(`http://localhost:4000/chat/${this.currentChatId}`, {
+            await fetch(`http://localhost:3000/chat/${this.currentChatId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -152,7 +152,7 @@ class ChatApp {
     async selectChat(chatId) {
         this.currentChatId = chatId;
         try {
-            const response = await fetch(`http://localhost:4000/chat/${chatId}`);
+            const response = await fetch(`http://localhost:3000/chat/${chatId}`);
             const chat = await response.json();
             this.displayMessages(chat.messages);
             this.updateActiveChatStyle();
