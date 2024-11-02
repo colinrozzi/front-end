@@ -106,10 +106,19 @@ class ChatApp {
         if (!message || !this.currentChatId) return;
 
         try {
+            // Get the hash of the last message to use as parent
+            const chatMessages = document.getElementById('chatMessages');
+            const lastMessage = chatMessages.lastElementChild;
+            const parentHash = lastMessage ? lastMessage.dataset.hash : null;
+            
             // Display user message immediately
             this.appendMessage({
-                role: 'user',
-                content: message
+                content: JSON.stringify({
+                    role: 'user',
+                    content: message
+                }),
+                hash: 'temp-' + Date.now(), // Temporary hash until server responds
+                parentHash: parentHash
             });
             
             // Show loading state
@@ -123,7 +132,8 @@ class ChatApp {
                     message: {
                         role: 'user',
                         content: message
-                    }
+                    },
+                    parentHash: parentHash
                 })
             });
             
@@ -168,37 +178,55 @@ class ChatApp {
     displayMessages(messages) {
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '';
-        messages.forEach(message => this.appendMessage(message));
+        
+        // Create a map of messages by hash for easy lookup
+        const messageMap = new Map();
+        messages.forEach(msg => messageMap.set(msg.hash, msg));
+        
+        // Find root messages (those without parents or with unknown parents)
+        const rootMessages = messages.filter(msg => 
+            !msg.parentHash || !messageMap.has(msg.parentHash)
+        );
+        
+        // Recursively display messages starting from roots
+        rootMessages.forEach(msg => {
+            this.displayMessageThread(msg, messages, messageMap, 0);
+        });
     }
 
-    appendMessage(message) {
+    displayMessageThread(message, allMessages, messageMap, depth) {
+        this.appendMessage(message, depth);
+        
+        // Find and display child messages
+        const children = allMessages.filter(msg => msg.parentHash === message.hash);
+        children.forEach(child => {
+            this.displayMessageThread(child, allMessages, messageMap, depth + 1);
+        });
+    }
+
+    appendMessage(message, depth = 0) {
         const chatMessages = document.getElementById('chatMessages');
         const messageElement = document.createElement('div');
         
-        // Handle different message formats
-        let role = 'user';
-        let content = '';
+        // Extract content from message structure
+        const content = message.content;
+        const hash = message.hash;
         
-        if (typeof message === 'object') {
-            if (message.message && message.message.role) {
-                // Handle nested message format
-                role = message.message.role;
-                content = message.message.content;
-            } else if (message.role) {
-                // Handle direct message format
-                role = message.role;
-                content = message.content;
-            } else {
-                // Fallback for unknown object format
-                content = JSON.stringify(message);
-            }
-        } else {
-            // Handle plain string messages
-            content = message;
-        }
+        // Determine message type/role from content if needed
+        const role = content.includes('"role":"assistant"') ? 'assistant' : 'user';
         
+        // Create message container with indentation
         messageElement.className = `message ${role}-message`;
-        messageElement.textContent = content;
+        messageElement.style.marginLeft = `${depth * 20}px`; // Indent based on depth
+        messageElement.dataset.hash = hash;
+        
+        // Parse and display the actual message content
+        try {
+            const parsedContent = JSON.parse(content);
+            messageElement.textContent = parsedContent.content || parsedContent.message;
+        } catch (e) {
+            messageElement.textContent = content;
+        }
         
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;

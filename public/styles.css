@@ -185,6 +185,21 @@ body {
     max-width: 80%;
     line-height: 1.4;
     font-size: 0.95em;
+    position: relative;
+}
+
+.message:not(:first-child) {
+    border-left: 2px solid var(--border-color);
+}
+
+.message::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    width: 10px;
+    height: 2px;
+    background-color: var(--border-color);
 }
 
 .user-message {
