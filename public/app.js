@@ -70,16 +70,22 @@ class ChatApp {
 
     async loadChats() {
         try {
-            const response = await fetch('http://localhost:4000/chats');
+            const response = await fetch('/chats');
             const data = await response.json();
             const chats = Array.isArray(data) ? data : (data.chats || []);
             this.displayChats(chats);
             
-            if (this.currentChatId && document.getElementById('chatMessages').children.length === 0) {
+            // Select first chat if no chat is currently selected
+            if (!this.currentChatId && chats.length > 0) {
+                await this.selectChat(chats[0].id);
+            } else if (this.currentChatId && document.getElementById('chatMessages').children.length === 0) {
                 await this.selectChat(this.currentChatId);
             }
         } catch (error) {
             console.error('Failed to load chats:', error);
+            // Update UI to show no chats available
+            this.updateChatName('No chats available');
+            this.displayMessages([]);
         }
     }
 
