@@ -63,6 +63,9 @@ class ChatApp {
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.sendMessage();
         });
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('hidden');
+        });
     }
 
     async loadChats() {
